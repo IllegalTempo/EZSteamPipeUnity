@@ -32,12 +32,22 @@ public class NetworkSystem : MonoBehaviour
             Debug.Log("Instance Already Exist");
             Destroy(this.gameObject);
         }
-
     }
+    //Spawn the network Player
     public NetworkPlayerObject SpawnPlayer(bool isLocal, int networkid, ulong steamid)
     {
+        if (PlayerInstance == null)
+        {
+            Debug.LogError("PlayerInstance prefab is not set. Cannot spawn player.");
+            return null;
+        }
         Debug.Log("Spawning Player");
         NetworkPlayerObject p = Instantiate(PlayerInstance, Vector3.zero, Quaternion.identity).GetComponent<NetworkPlayerObject>();
+        if (p == null)
+        {
+            Debug.LogError("PlayerInstance prefab does not have NetworkPlayerObject component.");
+            return null;
+        }
         p.NetworkID = networkid;
         p.steamID = steamid;
         p.IsLocal = isLocal;
@@ -53,29 +63,29 @@ public class NetworkSystem : MonoBehaviour
     }
     private void Start()
     {
-        
-
         DontDestroyOnLoad(gameObject);
         try
         {
-            SteamClient.Init(480, true);
-            SteamNetworkingUtils.InitRelayNetworkAccess();
-
+            if (!SteamClient.IsValid)
+            {
+                SteamClient.Init(480, true);
+                SteamNetworkingUtils.InitRelayNetworkAccess();
+                CreateGameLobby();
+            }
         }
         catch (System.Exception e)
         {
-            Debug.LogError(e);
+            Debug.LogError($"Steam initialization failed: {e}");
         }
 #if UNITY_EDITOR
-
         EditorApplication.playModeStateChanged += OnExit;
 #endif
         SteamMatchmaking.OnLobbyCreated += OnLobbyCreated;
         SteamMatchmaking.OnLobbyGameCreated += OnLobbyGameCreated;
         SteamMatchmaking.OnLobbyEntered += OnLobbyEntered;
         SteamFriends.OnGameLobbyJoinRequested += OnFriendJoinLobby;
-
     }
+    //GO ONLINE!
     public async void CreateGameLobby()
     {
         bool success = await CreateLobby();
@@ -103,24 +113,46 @@ public class NetworkSystem : MonoBehaviour
     }
 
 
+    private bool destroyed = false;
     private void OnDestroy()
     {
-
-        if (server != null)
+        if (destroyed) return;
+        destroyed = true;
+        // Unsubscribe from events
+        SteamMatchmaking.OnLobbyCreated -= OnLobbyCreated;
+        SteamMatchmaking.OnLobbyGameCreated -= OnLobbyGameCreated;
+        SteamMatchmaking.OnLobbyEntered -= OnLobbyEntered;
+        SteamFriends.OnGameLobbyJoinRequested -= OnFriendJoinLobby;
+        try
         {
-            Debug.Log("Destroyed Server");
-            server.DisconnectAll();
-            server = null;
+            if (server != null)
+            {
+                Debug.Log("Destroyed Server");
+                server.DisconnectAll();
+                server = null;
+            }
+            if (client != null)
+            {
+                client.Close();
+                client = null;
+            }
+            if (SteamClient.IsValid)
+            {
+                SteamClient.Shutdown();
+            }
         }
-        if (client != null)
+        catch (Exception e)
         {
-            client.Close();
-            client = null;
+            Debug.LogError($"Error during NetworkSystem shutdown: {e}");
         }
-        SteamClient.Shutdown();
     }
     public async Task<bool> CreateLobby()
     {
+        if (!SteamClient.IsValid)
+        {
+            Debug.LogError("SteamClient is not initialized. Cannot create lobby.");
+            return false;
+        }
         NewLobby();
         IsServer = true;
         client = null;
@@ -129,18 +161,16 @@ public class NetworkSystem : MonoBehaviour
             var createLobbyOutput = await SteamMatchmaking.CreateLobbyAsync(8);
             if (!createLobbyOutput.HasValue)
             {
-                Debug.Log("Lobby created but not correctly instantiated");
+                Debug.LogError("Lobby created but not correctly instantiated");
                 throw new Exception();
             }
-
             Debug.Log("Successfully Created Lobby");
-
             return true;
         }
         catch (Exception exception)
         {
-            Debug.Log("Failed to create multiplayer lobby");
-            Debug.Log(exception.ToString());
+            Debug.LogError("Failed to create multiplayer lobby");
+            Debug.LogError(exception.ToString());
             return false;
         }
     }
@@ -148,11 +178,25 @@ public class NetworkSystem : MonoBehaviour
     {
         if (server != null)
         {
-            server.Receive();
+            try
+            {
+                server.Receive();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Server receive error: {e}");
+            }
         }
         if (client != null)
         {
-            client.Receive();
+            try
+            {
+                client.Receive();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Client receive error: {e}");
+            }
         }
     }
 
