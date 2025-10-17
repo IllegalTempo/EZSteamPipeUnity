@@ -4,6 +4,7 @@
 This project relies on facepunch.steamworks
 ### About
 This tool aims to help unity user to quickly import Multiplayer into their game. This tool provide custom packet management and basic network player script
+Do **NOT** use it for competitive environments, this library is highly client trusted. Recommend to use it for coop games and pve etc
 ### Hyper-Quick Start
 1. Put scripts and Editor folder into your unity project
 2. create/use a GameObject that is used for system script, add <**NetworkSystem**> script.
