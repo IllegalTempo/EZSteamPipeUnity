@@ -16,7 +16,7 @@ public class GameClient : ConnectionManager
 
 
     private Dictionary<int, PacketHandle> ClientPacketHandles = new Dictionary<int, PacketHandle>()
-        {
+    {
             { (int)PacketSend.ServerPackets.Test_Packet,PacketHandles_Method.Client_Handle_test },
             { (int)PacketSend.ServerPackets.RoomInfoOnPlayerEnterRoom,PacketHandles_Method.Client_Handle_InitRoomInfo },
             { (int)PacketSend.ServerPackets.UpdatePlayerEnterRoomForExistingPlayer,PacketHandles_Method.Client_Handle_NewPlayerJoin },
@@ -25,7 +25,8 @@ public class GameClient : ConnectionManager
             { (int)PacketSend.ServerPackets.DistributeAnimation,PacketHandles_Method.Client_Handle_ReceivedPlayerAnimation},
 
 
-        };
+    
+};
 
 
     public bool IsLocal(int id)

@@ -1,4 +1,4 @@
-﻿using Steamworks;
+using Steamworks;
 using Steamworks.Data;
 using System;
 using System.Linq;
@@ -15,8 +15,7 @@ public class PacketSend
         PlayerQuit = 3,
 
         DistributeMovement = 4,
-        DistributeAnimation = 5,
-    };
+        DistributeAnimation = 5,};
     public static string TestRandomUnicode = "幻想鄉是一個與外界隔絕的神秘之地，其存在自古以來便被視為傳說而流傳。";
     public static Result Server_Send_test(NetworkPlayer pl)
     {
@@ -147,8 +146,7 @@ public class PacketSend
         Test_Packet = 0,
         SendPosition = 1,
         Ready = 2,
-        SendAnimationState = 3,
-    };
+        SendAnimationState = 3,};
     public static Result Client_Send_AnimationState(float movementx,float movementy)
     {
         using (packet p = new packet((int)ClientPackets.SendAnimationState))
@@ -209,6 +207,18 @@ public class PacketSend
             return PacketSendingUtils.SendPacketToConnection(NetworkSystem.instance.client.GetServer(), p);
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 public class PacketSendingUtils
@@ -222,4 +232,6 @@ public class PacketSendingUtils
         Marshal.FreeHGlobal(datapointer); //Free memory allocated
         return r;
     }
+    
+
 }

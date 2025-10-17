@@ -44,6 +44,14 @@ public class NetworkPlayerObject : MonoBehaviour
             }
         }
     }
+    private void FixedUpdate()
+    {
+        if (IsLocal)
+        {
+            PacketSend.Client_Send_Position(transform.position,Head.transform.rotation,Body.transform.rotation);
+
+        }
+    }
     public void SetMovement(Vector3 pos, Quaternion Headrot, Quaternion bodyrot)
     {
         NetworkPos = pos;

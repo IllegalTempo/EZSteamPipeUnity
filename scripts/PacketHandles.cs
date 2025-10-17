@@ -117,6 +117,18 @@ public class PacketHandles_Method
 		NetworkSystem.instance.client.GetPlayerByNetworkID[NetworkID].SetAnimation(x, y);
 	}
 	
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 

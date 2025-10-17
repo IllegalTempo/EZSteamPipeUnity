@@ -27,7 +27,11 @@ public class GameServer : SocketManager
             { (int)PacketSend.ClientPackets.SendAnimationState,PacketHandles_Method.Server_Handle_AnimationState},
             { (int)PacketSend.ClientPackets.Ready,PacketHandles_Method.Server_Handle_ReadyUpdate},
 
-        };
+        
+
+
+
+};
 
 
 
