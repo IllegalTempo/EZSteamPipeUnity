@@ -1,5 +1,6 @@
 using Unity.Netcode;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 public class NetworkPlayerObject : MonoBehaviour
 {
@@ -20,8 +21,8 @@ public class NetworkPlayerObject : MonoBehaviour
     public bool Sync_BodyRot = true;
 
     [Header("Object References")]
-    private GameObject Head;
-    private GameObject Body;
+    public GameObject Head;
+    public GameObject Body;
     public void Disconnect()
     {
         Destroy(gameObject);
@@ -48,7 +49,14 @@ public class NetworkPlayerObject : MonoBehaviour
     {
         if (IsLocal)
         {
-            PacketSend.Client_Send_Position(transform.position,Head.transform.rotation,Body.transform.rotation);
+            if (!NetworkSystem.instance.IsServer)
+            {
+                PacketSend.Client_Send_Position(transform.position, Head.transform.rotation, transform.rotation);
+            }
+            else
+            {
+                PacketSend.Server_DistributeMovement(0, transform.position, Head.transform.rotation, transform.rotation);
+            }
 
         }
     }
